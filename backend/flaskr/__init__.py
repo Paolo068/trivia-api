@@ -32,12 +32,12 @@ def create_app(test_config=None):
         )
         return response
 
-    def paginate_question(request, questions):
+    def paginate_questions(request, questions):
         page = request.args.get("page", 1, type=int)
         start = (page - 1) * QUESTIONS_PER_PAGE
         end = start + QUESTIONS_PER_PAGE
-        selection = [q.format() for q in questions]
-        current_questions = selection[start:end]
+        questions = [q.format() for q in questions]
+        current_questions = questions[start:end]
 
         return current_questions
 
@@ -65,7 +65,7 @@ def create_app(test_config=None):
                 }
             )
         except:
-            abort(422)
+            abort(400)
 
     """
     @TODO:
@@ -89,10 +89,15 @@ def create_app(test_config=None):
             if selection is None:
                 abort(404)
 
-            questions = paginate_question(request, selection)
+            questions = paginate_questions(request, selection)
             categories = [cat.format() for cat in categ]
+
             # for category in selection:
             #     categories = [category.format()]
+
+            if len(questions) == 0:
+                abort(422)
+
             return jsonify(
                 {
                     "success": True,
@@ -102,7 +107,7 @@ def create_app(test_config=None):
                 }
             )
         except:
-            abort(422)
+            abort(404)
 
     """
     @TODO:
@@ -115,10 +120,7 @@ def create_app(test_config=None):
     @app.route("/questions/<int:q_id>", methods=["DELETE"])
     def delete_questions(q_id):
         try:
-            question = Question.query.filter(Question.id == q_id).one_or_none()
-            if question is None:
-                abort(404)
-
+            question = Question.query.filter(Question.id == int(q_id)).one_or_none()
             question.delete()
 
             return jsonify(
@@ -130,7 +132,7 @@ def create_app(test_config=None):
             )
 
         except:
-            abort(422)
+            abort(404)
 
     """
     @TODO:
@@ -148,59 +150,44 @@ def create_app(test_config=None):
         try:
             body = request.get_json()
 
-            new_question = str(body.get("question"))
-            new_answer = str(body.get("answer"))
-            new_category_type = int(body.get("category"))
-            new_difficulty = int(body.get("difficulty"))
+            new_question = body.get("question")
+            new_answer = body.get("answer")
+            new_category_type = body.get("category")
+            new_difficulty = body.get("difficulty")
+            search_term = body.get("search")
 
-            question = Question(
-                question=new_question,
-                answer=new_answer,
-                difficulty=new_difficulty,
-                category=new_category_type,
-            )
-
-            question.insert()
-
-            selection = Question.query.order_by(Question.id).all()
-            questions = [elt.format() for elt in selection]
-            return jsonify(
-                {
-                    "success": True,
-                    "created": question.id,
-                    "questions": questions,
-                    "total_questions": len(Question.query.all()),
-                }
-            )
-        except:
-            abort(400)
-
-    """
-    @TODO:
-    Create a POST endpoint to get questions based on a search term.
-    It should return any questions for whom the search term
-    is a substring of the question.
-
-    TEST: Search by any phrase. The questions list will update to include
-    only question that include that string within their question.
-    Try using the word "title" to start.
-    """
-
-    @app.route("/questions/search", methods=["POST"])
-    def search_questions():
-        body = request.get_json()
-        search_term = body.get("search", None)
-        try:
             if search_term:
-                selection = Question.query.order_by(Question.id).where(
-                    Question.question.like("%{}%".format(search_term))
+                selection = Question.query.order_by(Question.id).filter(
+                    Question.question.ilike("%{}%".format(search_term))
                 )
 
                 questions = [elt.format() for elt in selection]
+                if questions:
+                    return jsonify(
+                        {
+                            "success": True,
+                            "questions": questions,
+                            "total_questions": len(Question.query.all()),
+                        }
+                    )
+                else:
+                    abort(404)
+            else:
+                question = Question(
+                    question=new_question,
+                    answer=new_answer,
+                    difficulty=new_difficulty,
+                    category=new_category_type,
+                )
 
+                question.insert()
+
+                selection = Question.query.order_by(Question.id).all()
+                questions = [elt.format() for elt in selection]
                 return jsonify(
                     {
                         "success": True,
+                        "created": question.id,
                         "questions": questions,
                         "total_questions": len(Question.query.all()),
                     }
@@ -222,23 +209,25 @@ def create_app(test_config=None):
 
         try:
             if categ_id:
+
                 selection = Question.query.filter(Question.category == categ_id).all()
                 categories = Category.query.all()
+
                 formatted_categories = [cat.format() for cat in categories]
                 questions = [question.format() for question in selection]
-                return jsonify(
-                    {
-                        "success": True,
-                        "questions": questions,
-                        "categories": formatted_categories,
-                        "total_questions": len(Question.query.all()),
-                    }
-                )
-            else:
-                return print("You must provide a valid category id")
-
+                if questions:
+                    return jsonify(
+                        {
+                            "success": True,
+                            "questions": questions,
+                            "categories": formatted_categories,
+                            "total_questions": len(Question.query.all()),
+                        }
+                    )
+                else:
+                    abort()
         except:
-            abort(404)
+            abort(422)
 
     """
     @TODO:
@@ -253,29 +242,84 @@ def create_app(test_config=None):
     """
 
     @app.route("/quizzes", methods=["POST"])
-    def get_questions_to_play_quizz():
-        # try:
+    # If 
+    def play_quizz():
         body = request.get_json()
+
         category = body.get("category", None)
+        difficulty = body.get("difficulty", None)
 
-        if category:
-            selection = Question.query.filter(Question.category == category).all()
+        # Check if the vars exist. If not switch to the next condition
+        if category and difficulty:
 
+            # Check if the vars are integer. category and difficulty are foreign keys in Question table referenced by their id
+            if isinstance(category, int) and isinstance(difficulty, int):
+                selection = Question.query.filter(
+                    Question.category == category, Question.difficulty == difficulty
+                ).all()
+
+                # Needed to be serializable by the jsonify() function
+                questions = [q.format() for q in selection]
+
+                # If corresponding questions found, return JSON or abort 
+                if questions:
+                    return jsonify(
+                        {
+                            "success": True,
+                            "questions": random.choice(questions),
+                            "total_questions": len(Question.query.all()),
+                        }
+                    )
+                else:
+                    abort(404)
+            else:
+                abort(422)
+
+        elif category:
+            if isinstance(category, int):
+                selection = Question.query.filter(Question.category == category).all()
+                questions = [q.format() for q in selection]
+                if questions:
+                    return jsonify(
+                        {
+                            "success": True,
+                            "questions": random.choice(questions),
+                            "total_questions": len(Question.query.all()),
+                        }
+                    )
+                else:
+                    abort(404)
+            else:
+                abort(404)
+
+        elif difficulty:
+            if isinstance(difficulty, int):
+                selection = Question.query.filter(
+                    Question.difficulty == difficulty
+                ).all()
+                questions = [q.format() for q in selection]
+                if questions:
+                    return jsonify(
+                        {
+                            "success": True,
+                            "questions": random.choice(questions),
+                            "total_questions": len(Question.query.all()),
+                        }
+                    )
+                else:
+                    abort(404)
+            else:
+                abort(404)
         else:
-            abort(422)
-
-        questions = [elt.format() for elt in selection]
-
-        return jsonify(
-            {
-                "success": True,
-                "questions": [random.choice(questions)],
-                "total_questions": len(Question.query.all()),
-            }
-        )
-
-    # except:
-    #     abort(400)
+            return jsonify(
+                {
+                    "success": True,
+                    "questions": random.choice(
+                        [q.format() for q in Question.query.all()]
+                    ),
+                    "total_questions": len(Question.query.all()),
+                }
+            )
 
     """
     @TODO:

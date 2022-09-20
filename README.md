@@ -1,113 +1,49 @@
-Endpoints and expected behaviors
-GET '/categories'
+# API Development and Documentation Final Project
 
-Retrieves a dictionary of categories in which the keys are the IDs, and the value is the corresponding category string
-Query arguments: none
-Returns: an object with a single key, categories, which contains an object of id:category_string key:value pairs.
-{
-'categories': { '1': "Science",
-'2': "Art",
-'3': "Geography",
-'4': "History",
-'5': "Entertainment",
-'6': "Sports" }
-}
-GET '/issues?page=${integer}'
+## Trivia App
 
-Retrieves a paginated set of questions, total number of questions, all categories, and the current category string.
-Query arguments: "page" - integer
-Returns: an object with 10 paginated questions, the total questions, the object including all categories, and the current category string
-{
-'Questions': [
-{
-'id': 1,
-'question': 'This is a question',
-'response': 'This is a response',
-'difficulty': 5,
-'category': 2
-},
-],
-'totalQuestions': 100,
-'categories': { '1': "Science",
-'2': "Art",
-'3': "Geography",
-'4': "History",
-'5': "Entertainment",
-'6': "Sports" },
-'currentCategory': 'History'
-}
-GET '/categories/${id}/questions'
+Udacity is invested in creating bonding experiences for its employees and students. A bunch of team members got the idea to hold trivia on a regular basis and created a webpage to manage the trivia app and play the game, but their API experience is limited and still needs to be built out.
 
-Retrieves questions for a category specified by the request id argument
-Query arguments: "id" - integer
-Returns: an object with questions for the specified category, total questions, and current category string
-{
-'Questions': [
-{
-'id': 1,
-'question': 'This is a question',
-'response': 'This is a response',
-'difficulty': 5,
-'category': 4
-},
-],
-'totalQuestions': 100,
-'currentCategory': 'History'
-}
-DELETE '/issues/${id}'
+That's where you come in! Help them finish the trivia app so they can start holding trivia and seeing who's the most knowledgeable of the bunch. The application must:
 
-Removes a question specified using the question id
-Query arguments: "id" - integer
-Returns: There is no need to return anything other than the appropriate HTTP status code. It is possible to return the question ID. If you are able to modify the front-end, you can make it delete the question using the id instead of fetching the questions.
-POST '/quizzes'
+1. Display questions - both all questions and by category. Questions should show the question, category and difficulty rating by default and can show/hide the answer.
+2. Delete questions.
+3. Add questions and require that they include question and answer text.
+4. Search for questions based on a text query string.
+5. Play the quiz game, randomizing either all questions or within a specific category.
 
-Send a POST request to get the next question
-Request body:
-{
-'previous_questions': [1, 4, 20, 15]
-quiz_category': 'current category'
-}
-Returns: a single new question object
-{
-'question': {
-'id': 1,
-'question': 'This is a question',
-'response': 'This is a response',
-'difficulty': 5,
-'category': 4
-}
-}
-POST '/questions'
+Completing this trivia app will give you the ability to structure plan, implement, and test an API - skills essential for enabling your future applications to communicate with others.
 
-Send a POST request to add a new question
-Request body:
-{
-'question': 'Here is a new question string',
-'response': 'Here is a new response string',
-'difficulty': 1,
-'category': 3,
-}
-Returns: does not return new data
+## Starting and Submitting the Project
 
-POST '/questions/search'
+[Fork](https://help.github.com/en/articles/fork-a-repo) the project repository and [clone](https://help.github.com/en/articles/cloning-a-repository) your forked repository to your machine. Work on the project locally and make sure to push all your changes to the remote repository before submitting the link to your repository in the Classroom.
 
-Send a POST request to search for a specific question by search term
-Request body:
-{
-'searchTerm': 'this is the search term'
-}
+## About the Stack
 
-Returns: any array of questions, a number of questions that match the search term and the current category string
-{
-'Questions': [
-{
-'id': 1,
-'question': 'This is a question',
-'response': 'This is a response',
-'difficulty': 5,
-'category': 5
-},
-],
-'totalQuestions': 100,
-'currentCategory': 'Entertainment'
-}
+We started the full stack application for you. It is designed with some key functional areas:
+
+### Backend
+
+The [backend](./backend/README.md) directory contains a partially completed Flask and SQLAlchemy server. You will work primarily in `__init__.py` to define your endpoints and can reference models.py for DB and SQLAlchemy setup. These are the files you'd want to edit in the backend:
+
+1. `backend/flaskr/__init__.py`
+2. `backend/test_flaskr.py`
+
+> View the [Backend README](./backend/README.md) for more details.
+
+### Frontend
+
+The [frontend](./frontend/README.md) directory contains a complete React frontend to consume the data from the Flask server. If you have prior experience building a frontend application, you should feel free to edit the endpoints as you see fit for the backend you design. If you do not have prior experience building a frontend application, you should read through the frontend code before starting and make notes regarding:
+
+1. What are the end points and HTTP methods the frontend is expecting to consume?
+2. How are the requests from the frontend formatted? Are they expecting certain parameters or payloads?
+
+Pay special attention to what data the frontend is expecting from each API response to help guide how you format your API. The places where you may change the frontend behavior, and where you should be looking for the above information, are marked with `TODO`. These are the files you'd want to edit in the frontend:
+
+1. `frontend/src/components/QuestionView.js`
+2. `frontend/src/components/FormView.js`
+3. `frontend/src/components/QuizView.js`
+
+By making notes ahead of time, you will practice the core skill of being able to read and understand code and will have a simple plan to follow to build out the endpoints of your backend API.
+
+> View the [Frontend README](./frontend/README.md) for more details.
