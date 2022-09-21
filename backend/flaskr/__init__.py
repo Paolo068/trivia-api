@@ -97,11 +97,13 @@ def create_app(test_config=None):
             question = Question.query.filter(
                 Question.id == int(question_id)
             ).one_or_none()
+            selection = Question.query.all()
             question.delete()
 
             return jsonify(
                 {
                     "success": True,
+                    "questions": paginate_questions(request, selection),
                     "deleted": question_id,
                     "total_questions": len(Question.query.all()),
                 }
@@ -150,7 +152,7 @@ def create_app(test_config=None):
 
             question.insert()
 
-            selection = Question.query.order_by(Question.id).all()
+            selection = Question.query.order_by(Question.id.desc()).all()
             questions = [elt.format() for elt in selection]
             return jsonify(
                 {
@@ -164,9 +166,10 @@ def create_app(test_config=None):
     # --------------------------------------------------------------
     # GET QUESTIONS BY CATEGORY
     # --------------------------------------------------------------
-    @app.route("/categories/<int:categ_id>/questions", methods=["GET"])
-    def get_questions_by_category(categ_id):
-
+    @app.route("/categories", methods=["POST"])
+    def get_questions_by_category():
+        body = request.get_json()
+        categ_id = body.get("category")
         if categ_id:
             if isinstance(categ_id, int):
                 selection = Question.query.filter(Question.category == categ_id).all()

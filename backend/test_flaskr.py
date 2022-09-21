@@ -117,7 +117,7 @@ class TriviaTestCase(unittest.TestCase):
         self.assertTrue(data["message"])
 
     def test_get_questions_by_category(self):
-        res = self.client().get("/categories/1/questions")
+        res = self.client().post("/categories", json={"category": 1})
         data = json.loads(res.data)
         self.assertEqual(res.status_code, 200)
         self.assertEqual(data["success"], True)
@@ -126,16 +126,16 @@ class TriviaTestCase(unittest.TestCase):
         self.assertTrue(data["total_questions"])
 
     def test_fail_get_questions_out_of_category(self):
-        res = self.client().get("/categories/10000/questions")
+        res = self.client().post("/categories", json={"category": 1000})
         data = json.loads(res.data)
         self.assertEqual(res.status_code, 404)
         self.assertEqual(data["success"], False)
         self.assertTrue(data["message"])
 
-    def test_fail_get_questions_with_wrong_category_params(self):
-        res = self.client().get("/categories/r/questions")
+    def test_fail_get_questions_with_invalid_category(self):
+        res = self.client().post("/categories", json={"category": "r"})
         data = json.loads(res.data)
-        self.assertEqual(res.status_code, 404)
+        self.assertEqual(res.status_code, 400)
         self.assertEqual(data["success"], False)
         self.assertTrue(data["message"])
 

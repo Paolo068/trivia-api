@@ -37,55 +37,6 @@ The API will return four error types when requests fail:
 {
   "questions": [
     {
-      "id": 5,
-      "question": "Whose autobiography is entitled 'I Know Why the Caged Bird Sings'?",
-      "answer": "Maya Angelou",
-      "difficulty": 2,
-      "category": 4
-    },
-    {
-      "id": 9,
-      "question": "What boxer's original name is Cassius Clay?",
-      "answer": "Muhammad Ali",
-      "difficulty": 1,
-      "category": 4
-    },
-    {
-      "id": 4,
-      "question": "What actor did author Anne Rice first denounce, then praise in the role of her beloved Lestat?",
-      "answer": "Tom Cruise",
-      "difficulty": 4,
-      "category": 5
-    },
-    {
-      "id": 6,
-      "question": "What was the title of the 1990 fantasy directed by Tim Burton about a young man with multi-bladed appendages?",
-      "answer": "Edward Scissorhands",
-      "difficulty": 3,
-      "category": 5
-    },
-    {
-      "id": 10,
-      "question": "Which is the only team to play in every soccer World Cup tournament?",
-      "answer": "Brazil",
-      "difficulty": 3,
-      "category": 6
-    },
-    {
-      "id": 11,
-      "question": "Which country won the first ever soccer World Cup in 1930?",
-      "answer": "Uruguay",
-      "difficulty": 4,
-      "category": 6
-    },
-    {
-      "id": 12,
-      "question": "Who invented Peanut Butter?",
-      "answer": "George Washington Carver",
-      "difficulty": 2,
-      "category": 4
-    },
-    {
       "id": 13,
       "question": "What is the largest lake in Africa?",
       "answer": "Lake Victoria",
@@ -105,7 +56,8 @@ The API will return four error types when requests fail:
       "answer": "Agra",
       "difficulty": 2,
       "category": 3
-    }
+    },
+    {...}
   ],
   "success": true,
   "total_questions": 18
@@ -118,7 +70,7 @@ The API will return four error types when requests fail:
 - Returns the id of the created question, success value, total questions, and question list based on current page number to update the frontend.
 - Can also search for questions if ``search`` term is provided, and returns the corresponding questions
 - Request Arguments: None
-- `curl http://127.0.0.1:5000/questions?page=3 -X POST -H "Content-Type: application/json" -d '{"answer":"Neverwhere", "question":"Neil Gaiman", "category":"5"}'`
+- `curl http://127.0.0.1:5000/questions?page=3 -X POST -H "Content-Type: application/json" -d '{"answer":"Agra", "question":"The Taj Mahal is located in which Indian city?", "category":"3", difficulty: 2 }'`
 
 ```json
 {
@@ -129,6 +81,20 @@ The API will return four error types when requests fail:
       "answer": "Agra",
       "difficulty": 2,
       "category": 3
+    }
+    {
+      "id": 4,
+      "question": "What actor did author Anne Rice first denounce, then praise in the role of her beloved Lestat?",
+      "answer": "Tom Cruise",
+      "difficulty": 4,
+      "category": 5
+    },
+    {
+      "id": 6,
+      "question": "What was the title of the 1990 fantasy directed by Tim Burton about a young man with multi-bladed appendages?",
+      "answer": "Edward Scissorhands",
+      "difficulty": 3,
+      "category": 5
     }
   ],
   "created": 15,
@@ -148,20 +114,6 @@ The API will return four error types when requests fail:
 {
   "questions": [
     {
-      "id": 5,
-      "question": "Whose autobiography is entitled 'I Know Why the Caged Bird Sings'?",
-      "answer": "Maya Angelou",
-      "difficulty": 2,
-      "category": 4
-    },
-    {
-      "id": 9,
-      "question": "What boxer's original name is Cassius Clay?",
-      "answer": "Muhammad Ali",
-      "difficulty": 1,
-      "category": 4
-    },
-    {
       "id": 4,
       "question": "What actor did author Anne Rice first denounce, then praise in the role of her beloved Lestat?",
       "answer": "Tom Cruise",
@@ -181,41 +133,6 @@ The API will return four error types when requests fail:
       "answer": "Brazil",
       "difficulty": 3,
       "category": 6
-    },
-    {
-      "id": 11,
-      "question": "Which country won the first ever soccer World Cup in 1930?",
-      "answer": "Uruguay",
-      "difficulty": 4,
-      "category": 6
-    },
-    {
-      "id": 12,
-      "question": "Who invented Peanut Butter?",
-      "answer": "George Washington Carver",
-      "difficulty": 2,
-      "category": 4
-    },
-    {
-      "id": 13,
-      "question": "What is the largest lake in Africa?",
-      "answer": "Lake Victoria",
-      "difficulty": 2,
-      "category": 3
-    },
-    {
-      "id": 14,
-      "question": "In which royal palace would you find the Hall of Mirrors?",
-      "answer": "The Palace of Versailles",
-      "difficulty": 3,
-      "category": 3
-    },
-    {
-      "id": 15,
-      "question": "The Taj Mahal is located in which Indian city?",
-      "answer": "Agra",
-      "difficulty": 2,
-      "category": 3
     }
   ],
   "deleted": 16,
@@ -240,16 +157,102 @@ The API will return four error types when requests fail:
 ```
 #### POST /quizzes
 
-- Generates a random sets of unique questions
-- Filter can be applied based on selected parameters ``category`` and/or ``difficulty``
-- Request Arguments: None
+- Generates one at once a random sets of unique questions
+- Filter can be applied based on ``category`` and/or ``difficulty``
+- Request Arguments: ``category`` and/or ``difficulty`` but not compulsory
 - Returns the success value, the random set of questions and total questions
 - `curl http://127.0.0.1:5000/quizzes -X POST -H "Content-Type: application/json" -d '{"category": 1, "difficulty": 2}'`
 
 ```json
 {
+  "questions": [
+    {
+      "id": 4,
+      "question": "What actor did author Anne Rice first denounce, then praise in the role of her beloved Lestat?",
+      "answer": "Tom Cruise",
+      "difficulty": 4,
+      "category": 5
+    }
+  ],
   "success": true,
   "questions": questions,
   "total_questions": 18,
+}
+```
+
+#### POST /categories
+
+- Retrieve questions based on the category
+- Request Arguments: ``category``
+- Returns the success value, questions and total questions
+- `curl http://127.0.0.1:5000/categories -X POST -H "Content-Type: application/json" -d '{"category": 1}'`
+
+```json
+{
+  "questions": [
+    {
+      "id": 1,
+      "question": "What actor did author Anne Rice first denounce, then praise in the role of her beloved Lestat?",
+      "answer": "Tom Cruise",
+      "difficulty": 4,
+      "category": 1
+    },
+    {
+      "id": 6,
+      "question": "What was the title of the 1990 fantasy directed by Tim Burton about a young man with multi-bladed appendages?",
+      "answer": "Edward Scissorhands",
+      "difficulty": 3,
+      "category": 1
+    },
+    {
+      "id": 10,
+      "question": "Which is the only team to play in every soccer World Cup tournament?",
+      "answer": "Brazil",
+      "difficulty": 3,
+      "category": 1
+    }
+  ],
+  "success": true,
+  "questions": questions,
+  "total_questions": 18,
+}
+```
+#### GET /categories
+
+- Retrieve all categories
+- Request Arguments: None
+- Returns the success value, categories and total categories
+- `curl http://127.0.0.1:5000/categories -X POST -H "Content-Type: application/json" -d '{"category": 1}'`
+
+```json
+{
+  "categories": [
+    {
+      "id": 1,
+      "type": "Science"
+    },
+    {
+      "id": 2,
+      "type": "Art"
+    },
+    {
+      "id": 3,
+      "type": "Geography"
+    },
+    {
+      "id": 4,
+      "type": "History"
+    },
+    {
+      "id": 5,
+      "type": "Entertainment"
+    },
+    {
+      "id": 6,
+      "type": "Sports"
+    }
+  ],
+  "success": true,
+  "total_categories": 6
 }
 ```
