@@ -128,7 +128,14 @@ class TriviaTestCase(unittest.TestCase):
     def test_fail_get_questions_out_of_category(self):
         res = self.client().get("/categories/10000/questions")
         data = json.loads(res.data)
-        self.assertEqual(res.status_code, 422)
+        self.assertEqual(res.status_code, 404)
+        self.assertEqual(data["success"], False)
+        self.assertTrue(data["message"])
+
+    def test_fail_get_questions_with_wrong_category_params(self):
+        res = self.client().get("/categories/r/questions")
+        data = json.loads(res.data)
+        self.assertEqual(res.status_code, 404)
         self.assertEqual(data["success"], False)
         self.assertTrue(data["message"])
 
@@ -143,10 +150,16 @@ class TriviaTestCase(unittest.TestCase):
     def test_422_sent_invalid_quizz_params(self):
         res = self.client().post("/quizzes", json={"category": "r"})
         data = json.loads(res.data)
-        self.assertEqual(res.status_code, 422)
+        self.assertEqual(res.status_code, 400)
         self.assertEqual(data["success"], False)
-        self.assertTrue(data["questions"])
-        self.assertTrue(data["total_questions"])
+        self.assertTrue(data["message"])
+
+    def test_404_for_failed_update(self):
+        res = self.client().patch("/questions/2", json={"answer": "Rototo"})
+        data = json.loads(res.data)
+        self.assertEqual(res.status_code, 404)
+        self.assertEqual(data["success"], False)
+        self.assertEqual(data["message"], "ressource not found")
 
 
 # Make the tests conveniently executable
