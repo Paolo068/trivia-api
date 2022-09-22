@@ -155,7 +155,7 @@ class TriviaTestCase(unittest.TestCase):
         self.assertTrue(data["message"])
 
     def test_404_for_failed_update(self):
-        res = self.client().patch("/questions/2", json={"answer": "Rototo"})
+        res = self.client().patch("/questions/r", json={"answer": "Rototo"})
         data = json.loads(res.data)
         self.assertEqual(res.status_code, 404)
         self.assertEqual(data["success"], False)
