@@ -1,5 +1,7 @@
 import json
+from operator import ne
 import os
+from this import s
 from unicodedata import category
 from flask import Flask, request, abort, jsonify
 from flask_sqlalchemy import SQLAlchemy
@@ -120,11 +122,12 @@ def create_app(test_config=None):
 
         body = request.get_json()
 
-        new_question = body.get("question")
-        new_answer = body.get("answer")
-        new_category_type = body.get("category")
-        new_difficulty = body.get("difficulty")
-        search_term = body.get("search")
+        new_question = body.get("question", None)
+        new_answer = body.get("answer", None)
+        new_category_type = body.get("category", None)
+        new_difficulty = body.get("difficulty", None)
+        search_term = body.get("searchTerm", None)
+
 
         if search_term:
             selection = Question.query.order_by(Question.id).filter(
@@ -143,6 +146,15 @@ def create_app(test_config=None):
             else:
                 abort(404)
         else:
+            if (
+                new_question
+                == new_answer
+                == new_difficulty
+                == new_category_type
+                == None
+            ):
+                abort(400)
+
             question = Question(
                 question=new_question,
                 answer=new_answer,
@@ -166,31 +178,28 @@ def create_app(test_config=None):
     # --------------------------------------------------------------
     # GET QUESTIONS BY CATEGORY
     # --------------------------------------------------------------
-    @app.route("/categories", methods=["POST"])
-    def get_questions_by_category():
-        body = request.get_json()
-        categ_id = body.get("category")
-        if categ_id:
-            if isinstance(categ_id, int):
-                selection = Question.query.filter(Question.category == categ_id).all()
-                categories = Category.query.all()
-
-                questions = paginate_questions(request, selection)
-                if questions:
-                    return jsonify(
-                        {
-                            "success": True,
-                            "questions": questions,
-                            "categories": [cat.format() for cat in categories],
-                            "total_questions": len(Question.query.all()),
-                        }
-                    )
-                else:
-                    abort(404)
-            else:
-                abort(400)
-        else:
+    @app.route("/categories/<int:category_id>/questions", methods=["GET"])
+    def get_questions_by_category(category_id):
+        # body = request.get_json()
+        # categ_id = body.get("category")
+        if not category_id:
             abort(400)
+
+        if not isinstance(category_id, int):
+            abort(400)
+        selection = Question.query.filter(Question.category == category_id).all()
+        categories = Category.query.all()
+        if not selection:
+            abort(404)
+        questions = paginate_questions(request, selection)
+        return jsonify(
+            {
+                "success": True,
+                "questions": questions,
+                "categories": [cat.format() for cat in categories],
+                "total_questions": len(questions),
+            }
+        )
 
     # --------------------------------------------------------------
     # UPDATE QUESTION
@@ -234,7 +243,6 @@ def create_app(test_config=None):
     # SELECT RANDOM QUESTIONS TO PLAY THE QUIZ
     # --------------------------------------------------------------
     @app.route("/quizzes", methods=["POST"])
-    # If
     def play_quizz():
         body = request.get_json()
 

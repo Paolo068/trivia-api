@@ -13,10 +13,10 @@ class App extends Component {
         <Header path />
         <Router>
           <Routes>
-            <Route path='/' component={QuestionView} />
-            <Route path='/add' component={FormView} />
-            <Route path='/play' component={QuizView} />
-            {/* <Route component={QuestionView} /> */}
+            <Route path='/' element={<QuestionView/>} exact />
+            <Route path='/add' element={<FormView/>} exact />
+            <Route path='/play' element={<QuizView/>} exact />
+            <Route element={<QuestionView/>} />
           </Routes>
         </Router>
       </div>

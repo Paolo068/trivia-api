@@ -11,7 +11,7 @@ class QuestionView extends Component {
       questions: [],
       page: 1,
       totalQuestions: 0,
-      categories: {},
+      categories: [],
       currentCategory: null,
     };
   }
@@ -19,6 +19,61 @@ class QuestionView extends Component {
   componentDidMount() {
     this.getQuestions();
   }
+
+
+  render() {
+    return (
+      <div className='question-view'>
+        <div className='categories-list'>
+          <h2
+            onClick={() => {
+              this.getQuestions();
+            }}
+          >
+            Categories
+          </h2>
+          <ul>
+            {(this.state.categories).map((category) => {
+              return (
+                <li
+                  key={category.id}
+                  onClick={() => {
+                    this.getByCategory(category.id);
+                  }}
+                >
+                  <img
+                    className='category'
+                    alt={`${category.type.toString().toLowerCase()}`}
+                    src={`${category.type.toString().toLowerCase()}.svg`}
+                  />
+                </li>
+              )
+            })}
+          </ul>
+
+          <Search submitSearch={this.submitSearch} />
+        </div>
+        <div className='questions-list'>
+          <h2>Questions</h2>
+          {this.state.questions.map((q, ind) => {
+            return (
+              <Question
+                key={q.id}
+                question={q.question}
+                answer={q.answer}
+                category={q.category}
+                difficulty={q.difficulty}
+                questionAction={this.questionAction(q.id)}
+              />
+            )
+          })
+          }
+          <div className='pagination-menu'>{this.createPagination()}</div>
+        </div>
+      </div>
+    );
+  }
+
 
   getQuestions = () => {
     $.ajax({
@@ -39,6 +94,7 @@ class QuestionView extends Component {
       },
     });
   };
+
 
   selectPage(num) {
     this.setState({ page: num }, () => this.getQuestions());
@@ -65,7 +121,7 @@ class QuestionView extends Component {
 
   getByCategory = (id) => {
     $.ajax({
-      url: `/categories/${id}/questions`, //TODO: update request URL
+      url: `http://127.0.0.1:5000/categories/${id}/questions`, //TODO: update request URL
       type: 'GET',
       success: (result) => {
         this.setState({
@@ -84,7 +140,7 @@ class QuestionView extends Component {
 
   submitSearch = (searchTerm) => {
     $.ajax({
-      url: `/questions`, //TODO: update request URL
+      url: `http://127.0.0.1:5000/questions`, //TODO: update request URL
       type: 'POST',
       dataType: 'json',
       contentType: 'application/json',
@@ -126,53 +182,7 @@ class QuestionView extends Component {
     }
   };
 
-  render() {
-    return (
-      <div className='question-view'>
-        <div className='categories-list'>
-          <h2
-            onClick={() => {
-              this.getQuestions();
-            }}
-          >
-            Categories
-          </h2>
-          <ul>
-            {Object.keys(this.state.categories).map((id) => (
-              <li
-                key={id}
-                onClick={() => {
-                  this.getByCategory(id);
-                }}
-              >
-                {this.state.categories[id]}
-                <img
-                  className='category'
-                  alt={`${this.state.categories[id].toLowerCase()}`}
-                  src={`${this.state.categories[id].toLowerCase()}.svg`}
-                />
-              </li>
-            ))}
-          </ul>
-          <Search submitSearch={this.submitSearch} />
-        </div>
-        <div className='questions-list'>
-          <h2>Questions</h2>
-          {this.state.questions.map((q, ind) => (
-            <Question
-              key={q.id}
-              question={q.question}
-              answer={q.answer}
-              category={this.state.categories[q.category]}
-              difficulty={q.difficulty}
-              questionAction={this.questionAction(q.id)}
-            />
-          ))}
-          <div className='pagination-menu'>{this.createPagination()}</div>
-        </div>
-      </div>
-    );
-  }
+
 }
 
 export default QuestionView;
