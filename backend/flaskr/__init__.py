@@ -128,7 +128,6 @@ def create_app(test_config=None):
         new_difficulty = body.get("difficulty", None)
         search_term = body.get("searchTerm", None)
 
-
         if search_term:
             selection = Question.query.order_by(Question.id).filter(
                 Question.question.ilike("%{}%".format(search_term))
@@ -146,14 +145,14 @@ def create_app(test_config=None):
             else:
                 abort(404)
         else:
-            if (
-                new_question
-                == new_answer
-                == new_difficulty
-                == new_category_type
-                == None
-            ):
-                abort(400)
+            # if (
+            #     new_question
+            #     == new_answer
+            #     == new_difficulty
+            #     == new_category_type
+            #     == None
+            # ):
+            #     abort(400)
 
             question = Question(
                 question=new_question,
@@ -174,6 +173,26 @@ def create_app(test_config=None):
                     "total_questions": len(Question.query.all()),
                 }
             )
+
+    @app.route("/categories/<int:category_id>", methods=["GET"])
+    def get_catTypeByID(category_id):
+        # body = request.get_json()
+        # categ_id = body.get("category")
+        if not category_id:
+            abort(400)
+
+        if not isinstance(category_id, int):
+            abort(400)
+        categories = Category.query.filter(Category.id == category_id)
+        if not categories:
+            abort(404)
+
+        return jsonify(
+            {
+                "success": True,
+                "categories": [category.format() for category in categories],
+            }
+        )
 
     # --------------------------------------------------------------
     # GET QUESTIONS BY CATEGORY
@@ -246,7 +265,7 @@ def create_app(test_config=None):
     def play_quizz():
         body = request.get_json()
 
-        category = body.get("category", None)
+        category = body.get("quizz_category", None)
         difficulty = body.get("difficulty", None)
 
         # Check if the vars exist. If not switch to the next condition

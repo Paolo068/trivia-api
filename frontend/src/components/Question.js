@@ -1,13 +1,17 @@
 import React, { Component } from 'react';
 import '../stylesheets/Question.css';
+import $ from 'jquery';
 
 class Question extends Component {
   constructor() {
     super();
     this.state = {
       visibleAnswer: false,
+      category: null
     };
   }
+
+  
 
   flipVisibility() {
     this.setState({ visibleAnswer: !this.state.visibleAnswer });
@@ -21,8 +25,8 @@ class Question extends Component {
         <div className='Question-status'>
           <img
             className='category'
-            alt={`${category.toString().toLowerCase() }`}
-            src={`${category.toString().toLowerCase()}.svg`}
+            alt={`${category}`}
+            src={`${category}.svg`}
           />
           <div className='difficulty'>Difficulty: {difficulty}</div>
           <img
