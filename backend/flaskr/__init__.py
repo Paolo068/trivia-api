@@ -265,7 +265,7 @@ def create_app(test_config=None):
     def play_quizz():
         body = request.get_json()
 
-        category = body.get("quizz_category", None)
+        category = body.get("quiz_category", None)
         difficulty = body.get("difficulty", None)
 
         # Check if the vars exist. If not switch to the next condition

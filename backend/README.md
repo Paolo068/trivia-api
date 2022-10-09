@@ -161,7 +161,7 @@ The API will return four error types when requests fail:
 - Filter can be applied based on ``category`` and/or ``difficulty``
 - Request Arguments: ``category`` and/or ``difficulty`` but not compulsory
 - Returns the success value, the random set of questions and total questions
-- `curl http://127.0.0.1:5000/quizzes -X POST -H "Content-Type: application/json" -d '{"category": 1, "difficulty": 2}'`
+- `curl http://127.0.0.1:5000/quizzes -X POST -H "Content-Type: application/json" -d '{"quiz_category": 1, "difficulty": 2}'`
 
 ```json
 {

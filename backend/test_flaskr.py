@@ -148,7 +148,7 @@ class TriviaTestCase(unittest.TestCase):
         self.assertTrue(data["total_questions"])
 
     def test_422_sent_invalid_quizz_params(self):
-        res = self.client().post("/quizzes", json={"quizz_category": "r"})
+        res = self.client().post("/quizzes", json={"quiz_category": "r"})
         data = json.loads(res.data)
         self.assertEqual(res.status_code, 400)
         self.assertEqual(data["success"], False)
