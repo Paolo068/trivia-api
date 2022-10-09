@@ -110,14 +110,14 @@ class TriviaTestCase(unittest.TestCase):
         self.assertTrue(data["total_questions"])
 
     def test_get_question_search_without_results(self):
-        res = self.client().post("/questions", json={"search": "0aze5"})
+        res = self.client().post("/questions", json={"searchTerm": "0aze5"})
         data = json.loads(res.data)
         self.assertEqual(res.status_code, 404)
         self.assertEqual(data["success"], False)
         self.assertTrue(data["message"])
 
     def test_get_questions_by_category(self):
-        res = self.client().post("/categories", json={"category": 1})
+        res = self.client().get("/categories/1/questions")
         data = json.loads(res.data)
         self.assertEqual(res.status_code, 200)
         self.assertEqual(data["success"], True)
@@ -126,16 +126,16 @@ class TriviaTestCase(unittest.TestCase):
         self.assertTrue(data["total_questions"])
 
     def test_fail_get_questions_out_of_category(self):
-        res = self.client().post("/categories", json={"category": 1000})
+        res = self.client().get("/categories/10000")
         data = json.loads(res.data)
         self.assertEqual(res.status_code, 404)
         self.assertEqual(data["success"], False)
         self.assertTrue(data["message"])
 
     def test_fail_get_questions_with_invalid_category(self):
-        res = self.client().post("/categories", json={"category": "r"})
+        res = self.client().get("/categories/rt/questions")
         data = json.loads(res.data)
-        self.assertEqual(res.status_code, 400)
+        self.assertEqual(res.status_code, 404)
         self.assertEqual(data["success"], False)
         self.assertTrue(data["message"])
 
@@ -148,7 +148,7 @@ class TriviaTestCase(unittest.TestCase):
         self.assertTrue(data["total_questions"])
 
     def test_422_sent_invalid_quizz_params(self):
-        res = self.client().post("/quizzes", json={"category": "r"})
+        res = self.client().post("/quizzes", json={"quizz_category": "r"})
         data = json.loads(res.data)
         self.assertEqual(res.status_code, 400)
         self.assertEqual(data["success"], False)

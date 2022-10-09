@@ -183,7 +183,7 @@ def create_app(test_config=None):
 
         if not isinstance(category_id, int):
             abort(400)
-        categories = Category.query.filter(Category.id == category_id)
+        categories = Category.query.filter(Category.id == category_id).one_or_none()
         if not categories:
             abort(404)
 
